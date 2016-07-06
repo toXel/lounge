@@ -142,6 +142,11 @@ function init(socket, client) {
 	} else {
 		socket.emit("authorized");
 
+		socket.on("disconnect", function() {
+			client.clientDetach();
+		});
+		client.clientAttach();
+
 		socket.on(
 			"input",
 			function(data) {
