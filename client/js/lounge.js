@@ -181,6 +181,13 @@ $(function() {
 		}
 	});
 
+	socket.on("open", function(id) {
+		// Another client opened the channel, clear the unread counter
+		sidebar.find("[data-id='" + id + "'] .badge")
+			.removeClass("highlight")
+			.empty();
+	});
+
 	socket.on("join", function(data) {
 		var id = data.network;
 		var network = sidebar.find("#network-" + id);
@@ -356,7 +363,7 @@ $(function() {
 			.append(msg)
 			.trigger("msg", [
 				target,
-				data.msg
+				data
 			]);
 
 		if (data.msg.self) {
@@ -784,7 +791,6 @@ $(function() {
 		self.addClass("active")
 			.find(".badge")
 			.removeClass("highlight")
-			.data("count", 0)
 			.empty();
 
 		if (sidebar.find(".highlight").length === 0) {
@@ -893,6 +899,9 @@ $(function() {
 	});
 
 	chat.on("msg", ".messages", function(e, target, msg) {
+		var unread = msg.unread;
+		msg = msg.msg;
+
 		if (msg.self) {
 			return;
 		}
@@ -942,23 +951,14 @@ $(function() {
 			return;
 		}
 
-		var whitelistedActions = [
-			"message",
-			"notice",
-			"action",
-		];
-		if (whitelistedActions.indexOf(msg.type) === -1) {
+		if (!unread) {
 			return;
 		}
 
-		var badge = button.find(".badge");
-		if (badge.length !== 0) {
-			var i = (badge.data("count") || 0) + 1;
-			badge.data("count", i);
-			badge.html(Handlebars.helpers.roundBadgeNumber(i));
-			if (msg.highlight) {
-				badge.addClass("highlight");
-			}
+		var badge = button.find(".badge").html(Handlebars.helpers.roundBadgeNumber(unread));
+
+		if (msg.highlight) {
+			badge.addClass("highlight");
 		}
 	});
 

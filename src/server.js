@@ -142,6 +142,11 @@ function init(socket, client) {
 	} else {
 		socket.emit("authorized");
 
+		socket.on("disconnect", function() {
+			client.clientDetach(socket.id);
+		});
+		client.clientAttach(socket.id);
+
 		socket.on(
 			"input",
 			function(data) {
@@ -210,7 +215,7 @@ function init(socket, client) {
 		socket.on(
 			"open",
 			function(data) {
-				client.open(data);
+				client.open(socket.id, data);
 			}
 		);
 		socket.on(
@@ -227,7 +232,7 @@ function init(socket, client) {
 		);
 		socket.join(client.id);
 		socket.emit("init", {
-			active: client.activeChannel,
+			active: client.lastActiveChannel,
 			networks: client.networks,
 			token: client.config.token || null
 		});
