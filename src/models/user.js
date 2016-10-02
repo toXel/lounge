@@ -7,8 +7,8 @@ function User(attr) {
 	attr.name = attr.name || attr.nick;
 	attr.mode = attr.mode || (attr.modes && attr.modes[0]) || "";
 
-	_.merge(this, _.extend({
+	_.defaults(this, attr, {
 		mode: "",
 		name: ""
-	}, attr));
+	});
 }
